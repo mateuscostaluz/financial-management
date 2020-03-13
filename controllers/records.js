@@ -1,5 +1,7 @@
 const Record = require('../models/record')
+const RecordServices = require('../services/records')
 const User = require('../models/user')
+const UserServices = require('../services/users')
 
 let controller = {
 
@@ -15,12 +17,16 @@ let controller = {
 
     create: async (ctx) => {
         try{
-            const user = await User.findById(ctx.request.body.owner.id)
+            const user = await User.findById(ctx.request.body.owner)          
+            const value = ctx.request.body.value
             if(!user) return ctx.status = 400
             let record = new Record({
                 value: ctx.request.body.value,
                 owner: user._id,
+                type: RecordServices.setType(value)
             })
+            console.log(ctx.request.body)
+            UserServices.updateBalance(ctx.request.body)
             record = await record.save()
             await Record.populate(record, {path: 'owner'})
             ctx.body = record.toClient()
@@ -36,11 +42,14 @@ let controller = {
     
     update: async (ctx) => {
         try{
-            const user = await User.findById(ctx.request.body.owner.id)
+            const user = await UserServices.find(ctx.request.body.owner)
+            const value = ctx.request.body.value
             if(!user) return ctx.body = 400
             const record = ctx.record
             record.value = ctx.request.body.value
             record.owner = user._id
+            record.type = RecordServices.setType(value)
+            UserServices.updateBalance(user.id, value)
             await record.save()
             await record.populate('owner').execPopulate()
             ctx.body = record.toClient()
@@ -58,7 +67,7 @@ let controller = {
         const req = {}
         if (ctx.query.owner_id) {
             try{
-                const user = await User.findById(ctx.query.owner_id).exec()
+                const user = await UserServices.find(ctx.query.owner_id).exec()
                 req.owner = user._id
             } catch (err) {
                 req.owner = null

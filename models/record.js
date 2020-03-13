@@ -12,6 +12,10 @@ const recordSchema = new Mongoose.Schema(
             required: true,
             ref: 'User'
         },
+        type: {
+            type: String,
+            required: false
+        }
     }, 
     {timestamps: true}
 )

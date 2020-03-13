@@ -9,6 +9,10 @@ const userSchema = new Mongoose.Schema(
             index: {
                 unique: true,
             },
+        },
+        balance: {
+            type: Number,
+            required: false
         }
     }, 
     {timestamps: true}

@@ -25,6 +25,7 @@ let controller = {
         }
         const user = new User({
             email: ctx.request.body.email,
+            balance: 0,
         })
         const ret = await user.save()
         ctx.body = ret.toClient()
@@ -62,6 +63,12 @@ let controller = {
         if(n > 0) return ctx.status = 409
         await User.deleteMany().exec()
         ctx.status = 204
+    },
+
+    alterBalance: async (body) => {
+        const user = User.findById(body.owner)
+        user.balance += (body.value - user.balance)
+        await user.save()
     }
 }
 
