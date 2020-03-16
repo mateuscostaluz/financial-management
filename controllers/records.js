@@ -1,6 +1,4 @@
-const Record = require('../models/record')
 const RecordServices = require('../services/records')
-const User = require('../models/user')
 const UserServices = require('../services/users')
 
 let controller = {
@@ -17,17 +15,14 @@ let controller = {
 
     create: async (ctx) => {
         try{
-            const user = await User.findById(ctx.request.body.owner)          
-            const value = ctx.request.body.value
+            const user = await UserServices.findById(ctx.request.body.owner)
             if(!user) return ctx.status = 400
-            let record = new Record({
-                value: ctx.request.body.value,
-                owner: user._id,
-                type: RecordServices.setType(value)
-            })
-            console.log(ctx.request.body)
-            UserServices.updateBalance(ctx.request.body)
+            let record = RecordServices.newRecord()
+            record.value = ctx.request.body.value
+            record.owner = user._id
+            record.type = RecordServices.setType(record.value)
             record = await record.save()
+            UserServices.updateBalance(user._id, record.value)
             await Record.populate(record, {path: 'owner'})
             ctx.body = record.toClient()
             ctx.status = 201
@@ -42,14 +37,14 @@ let controller = {
     
     update: async (ctx) => {
         try{
-            const user = await UserServices.find(ctx.request.body.owner)
-            const value = ctx.request.body.value
+            const user = await UserServices.findById(ctx.request.body.owner)
             if(!user) return ctx.body = 400
+            const value = ctx.request.body.value
             const record = ctx.record
             record.value = ctx.request.body.value
             record.owner = user._id
             record.type = RecordServices.setType(value)
-            UserServices.updateBalance(user.id, value)
+            UserServices.updateBalance(user, value)
             await record.save()
             await record.populate('owner').execPopulate()
             ctx.body = record.toClient()
@@ -67,7 +62,7 @@ let controller = {
         const req = {}
         if (ctx.query.owner_id) {
             try{
-                const user = await UserServices.find(ctx.query.owner_id).exec()
+                const user = await UserServices.findById(ctx.request.body.owner).exec()
                 req.owner = user._id
             } catch (err) {
                 req.owner = null
@@ -76,7 +71,7 @@ let controller = {
         if (ctx.user) req.owner = ctx.user._id
         const records = await Record.find(req).populate('owner').exec()
         for(let i = 0; i < records.length; i++) {
-            records[i] = record[i].toClient()
+            records[i] = records[i].toClient()
         }
         ctx.body = records
     },

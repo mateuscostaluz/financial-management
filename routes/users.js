@@ -11,5 +11,4 @@ module.exports = (router) => {
         .delete('/users/:user_id', users.delete)
         .get('/users/', users.list)
         .delete('/users/', users.clear)
-        .put('/users/:user_id/balance', users.alterBalance)
 }

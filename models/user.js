@@ -3,6 +3,10 @@ const AutoIncrement = require('mongoose-auto-increment')
 
 const userSchema = new Mongoose.Schema(
     {
+        name: {
+            type: String,
+            required: false,
+        },
         email: {
             type: String,
             required: true,
