@@ -1,3 +1,4 @@
+const Record = require('../models/record')
 const RecordServices = require('../services/records')
 const UserServices = require('../services/users')
 
@@ -16,13 +17,13 @@ let controller = {
     create: async (ctx) => {
         try{
             const user = await UserServices.findById(ctx.request.body.owner)
-            if(!user) return ctx.status = 400
-            let record = RecordServices.newRecord()
-            record.value = ctx.request.body.value
-            record.owner = user._id
-            record.type = RecordServices.setType(record.value)
-            record = await record.save()
-            UserServices.updateBalance(user._id, record.value)
+            if(!user) return ctx.status = 404
+
+            const record = new Record(ctx.request.body)
+            record.type = RecordServices.setTypeByValue(record.value)
+            await record.save()
+
+            UserServices.updateBalance(user, record.value)
             await Record.populate(record, {path: 'owner'})
             ctx.body = record.toClient()
             ctx.status = 201
@@ -38,14 +39,16 @@ let controller = {
     update: async (ctx) => {
         try{
             const user = await UserServices.findById(ctx.request.body.owner)
-            if(!user) return ctx.body = 400
-            const value = ctx.request.body.value
-            const record = ctx.record
-            record.value = ctx.request.body.value
-            record.owner = user._id
-            record.type = RecordServices.setType(value)
-            UserServices.updateBalance(user, value)
+            if(!user) return ctx.status = 404            
+
+            const record = await Record.findById(ctx.params.record_id)
+
+            record.value = (ctx.request.body.value * 1)
+            record.owner = user._id            
+            record.type = RecordServices.setTypeByValue(record.value)
             await record.save()
+            
+            UserServices.updateBalance(user)
             await record.populate('owner').execPopulate()
             ctx.body = record.toClient()
         } catch (err) {

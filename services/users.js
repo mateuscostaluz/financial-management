@@ -1,4 +1,4 @@
-const RecordServices = require('../services/records')
+const Record = require('../models/record')
 const User = require('../models/user')
 
 service = {
@@ -8,20 +8,13 @@ service = {
         return user
     },
 
-    async updateBalance(id, value) {
-        const user = await User.findById(id)
-        user.balance += value
-        user.save()
-    },
-
-    alterBalance(id, value) {
-        const user = findById(id)
-        if(!user) return ctx.body = 400
-        record = RecordServices.newRecord()
-        record.value = (value - user.balance)
-        record.owner = id
-        record.type = setType(value)
-        updateBalance(id, value)
+    async updateBalance(user) {
+        user.balance = 0
+        const records = await Record.find({}).exec()
+        for(let i = 0; i < records.length; i++) {
+            user.balance += records[i].value
+        }        
+        await user.save()
     }
 }
 

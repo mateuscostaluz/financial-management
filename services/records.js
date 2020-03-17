@@ -5,8 +5,13 @@ service = {
         return new Record()
     },
 
-    setType(value) {
-        let type = value > 0 ? 'Receita' : 'Despesa'
+    setTypeByValue(value) {
+        let type = ''
+        if(value === 0) {
+            type = 'Nulo'
+        } else {
+            type = value > 0 ? 'Receita' : 'Despesa'
+        }
         return type  
     }
 }
