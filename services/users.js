@@ -1,21 +1,12 @@
-const Record = require('../models/record')
-const User = require('../models/user')
+const User = require('../repositories/users')
 
 service = {
-
-    async findById(id) {
-        const user = await User.findById(id)
-        return user
+    findById: async (id) => {
+        await User.findById(id)
+        console.log(await User.findById(id))
     },
 
-    async updateBalance(user) {
-        user.balance = 0
-        const records = await Record.find({}).exec()
-        for(let i = 0; i < records.length; i++) {
-            user.balance += records[i].value
-        }        
-        await user.save()
-    }
+    updateBalance: async (ctx) => await User.updateBalance(ctx)
 }
 
 module.exports = service
