@@ -1,10 +1,7 @@
 const User = require('../repositories/users')
 
 service = {
-    findById: async (id) => {
-        await User.findById(id)
-        console.log(await User.findById(id))
-    },
+    findById: async (id) => await User.findById(id),
 
     updateBalance: async (ctx) => await User.updateBalance(ctx)
 }

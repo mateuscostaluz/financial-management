@@ -32,9 +32,7 @@ let controller = {
     update: async (ctx) => {
         try {
             ctx.user = await UserServices.findById(ctx.request.body.owner)
-            if (!user) return ctx.status = 404
-
-            console.log(user)
+            if (!ctx.user) return ctx.status = 404
 
             ctx.body = Record.update(ctx)
             ctx.status = 201
