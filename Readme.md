@@ -7,7 +7,7 @@ In order to run this project you must have the following installed:
 ## Installing the Project
 To download and install the project, execute the following commands:
 ```
-git clone https://gtl.gsw.com.br/mateus.luz/financial-management.git
+git clone https://github.com/mateuscostaluz/financial-management.git
 cd financial-management
 npm install
 ```
