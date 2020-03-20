@@ -16,11 +16,11 @@ const recordSchema = new Mongoose.Schema(
             type: String,
             required: false
         }
-    }, 
-    {timestamps: true}
+    },
+    { timestamps: true }
 )
 
-recordSchema.method('toClient', function() {
+recordSchema.method('toClient', function () {
     var obj = this.toObject()
 
     //Rename fields

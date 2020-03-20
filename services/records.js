@@ -1,18 +1,14 @@
-const Record = require('../models/record')
+const Record = require('../repositories/records')
 
 service = {
-    newRecord() {
-        return new Record()
-    },
-
-    setTypeByValue(value) {
+    setTypeByValue: (value) => {
         let type = ''
-        if(value === 0) {
-            type = 'Nulo'
+        if (value === 0) {
+            type = 'N/A'
         } else {
             type = value > 0 ? 'Receita' : 'Despesa'
         }
-        return type  
+        return type
     }
 }
 

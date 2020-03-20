@@ -18,11 +18,11 @@ const userSchema = new Mongoose.Schema(
             type: Number,
             required: false
         }
-    }, 
-    {timestamps: true}
+    },
+    { timestamps: true }
 )
 
-userSchema.method('toClient', function() {
+userSchema.method('toClient', function () {
     var obj = this.toObject()
 
     //Rename fields

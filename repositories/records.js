@@ -4,36 +4,61 @@ UserServices = require('../services/users')
 
 const repositories = {
 
-    findById: async (id) => await Record.findById(id).populate('owner').exec(),
+	toClient: (record) => record.toClient(),
 
-    create: async (ctx) => {
-        const record = new Record(ctx.request.body)
-        await Record.populate(record, { path: 'owner' })
+	findById: async (id) => await Record.findById(id).populate('owner').exec(),
+	findRecords: async () => await Record.find().populate('owner').exec(),
 
-        record.type = RecordServices.setTypeByValue(record.value)
+	create: async (ctx) => {
+		const record = new Record(ctx.request.body)
+		await Record.populate(record, { path: 'owner' })
 
-        UserServices.updateBalance(ctx)
+		record.type = RecordServices.setTypeByValue(record.value)
 
-        await record.save()
-        return record.toClient()
-    },
+		UserServices.updateBalance(ctx)
 
-    update: async (ctx) => {
-        const record = await Record.findById(ctx.params.record_id)
+		await record.save()
+		return record.toClient()
+	},
 
-        // value to update the balance
-        const updateBalanceValue = ctx.request.body.value - record.value
+	update: async (ctx) => {
+		const record = await Record.findById(ctx.params.record_id)
 
-        record.value = ctx.request.body.value
-        await Record.populate(record, { path: 'owner' })
-        record.type = RecordServices.setTypeByValue(record.value)
+		// value to update the balance
+		const updateBalanceValue = ctx.request.body.value - record.value
 
-        ctx.request.body.value = updateBalanceValue
-        await UserServices.updateBalance(ctx)
+		record.value = ctx.request.body.value
+		await Record.populate(record, { path: 'owner' })
+		record.type = RecordServices.setTypeByValue(record.value)
 
-        await record.save()
-        ctx.body = record.toClient()
-    }
+		ctx.request.body.value = updateBalanceValue
+		await UserServices.updateBalance(ctx)
+
+		await record.save()
+		return record.toClient()
+	},
+
+	delete: async (ctx) => await Record.findOneAndDelete({ _id: ctx.record.id }).exec(),
+
+	clear: async () => await Record.deleteMany().exec(),
+
+	list: async (ctx) => {
+		const req = {}
+		if (ctx.query.owner_id) {
+			try {
+				const user = await UserServices.findById(ctx.request.body.owner)
+				req.owner = user._id
+			} catch (err) {
+				req.owner = null
+			}
+		}
+		if (ctx.user) req.owner = ctx.user._id
+		const records = await Record.find(req).populate('owner').exec()
+		for (let i = 0; i < records.length; i++) {
+			records[i] = records[i].toClient()
+		}
+		return records
+	}
 }
 
 module.exports = repositories

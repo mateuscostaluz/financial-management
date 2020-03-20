@@ -1,5 +1,4 @@
 const Record = require('../repositories/records')
-const UserServices = require('../services/users')
 
 let controller = {
 
@@ -26,7 +25,8 @@ let controller = {
     },
 
     read: async (ctx) => {
-        ctx.body = ctx.record.toClient()
+        ctx.body = Record.toClient(ctx.record)
+        ctx.status = 200
     },
 
     update: async (ctx) => {
@@ -42,31 +42,16 @@ let controller = {
     },
 
     delete: async (ctx) => {
-        await Record.findOneAndDelete({ _id: ctx.record.id }).exec()
-        ctx.status = 204
+        ctx.body = Record.delete(ctx)
     },
 
     list: async (ctx) => {
-        const req = {}
-        if (ctx.query.owner_id) {
-            try {
-                const user = await UserServices.findById(ctx.request.body.owner).exec()
-                req.owner = user._id
-            } catch (err) {
-                req.owner = null
-            }
-        }
-        if (ctx.user) req.owner = ctx.user._id
-        const records = await Record.find(req).populate('owner').exec()
-        for (let i = 0; i < records.length; i++) {
-            records[i] = records[i].toClient()
-        }
-        ctx.body = records
+        ctx.body = await Record.list(ctx)
+        ctx.status = 200
     },
 
     clear: async (ctx) => {
-        await Record.deleteMany().exec()
-        ctx.status = 204
+        ctx.body = await Record.clear()
     }
 }
 

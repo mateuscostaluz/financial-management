@@ -1,5 +1,4 @@
 const User = require('../repositories/users')
-const Record = require('../models/record')
 
 const controller = {
 
@@ -42,22 +41,18 @@ const controller = {
     },
 
     delete: async (ctx) => {
-        const n = await Record.countDocuments({ owner: ctx.user._id }).exec()
-        if (n > 0) return ctx.status = 409
-        await User.findByIdAndDelete(ctx.user._id).exec()
-        ctx.status = 204
+        const documents = await User.delete(ctx)
+        documents === 0 ? ctx.status = 204 : ctx.status = 409
     },
 
     list: async (ctx) => {
-        ctx.body = await User.list(ctx)
+        ctx.body = await User.list()
         ctx.status = 200
     },
 
     clear: async (ctx) => {
-        const n = await Record.countDocuments().exec()
-        if (n > 0) return ctx.status = 409
-        await User.deleteMany().exec()
-        ctx.status = 204
+        const documents = await User.clear()
+        documents === 0 ? ctx.status = 204 : ctx.status = 409
     }
 }
 
