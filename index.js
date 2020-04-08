@@ -7,14 +7,16 @@ const Routes = require('./routes')
 
 // Options to use with mongoose (mainly to avoid deprecacy warnings)
 const mongooseOptions = {
-    useCreateIndex: true,
-    useNewUrlParser: true,
+  useCreateIndex: true,
+  useNewUrlParser: true
 }
 // Connect to the MongoDB database
-Mongoose.connect('mongodb://localhost:27017/financial-management', mongooseOptions)
+Mongoose.connect(
+  'mongodb://localhost:27017/financial-management',
+  mongooseOptions
+)
 // Use auto increment for models
 AutoIncrement.initialize(Mongoose.connection)
-
 
 // Create the Koa app
 const app = new Koa()
@@ -25,7 +27,7 @@ Routes(router)
 
 // Register all middlewares, in the right order
 app
-    .use(bodyParser())
-    .use(router.routes())
-    .use(router.allowedMethods())
-    .listen(5000)
+  .use(bodyParser())
+  .use(router.routes())
+  .use(router.allowedMethods())
+  .listen(5000)
